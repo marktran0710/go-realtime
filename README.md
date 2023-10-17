@@ -1,0 +1,1 @@
+Use Makefile, go-migrate

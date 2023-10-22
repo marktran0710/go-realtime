@@ -7,12 +7,19 @@ import (
 	"time"
 )
 
+type Service interface {
+	CreateUser(c context.Context, req *CreateUserReq) (*CreateUserRes, error)
+}
 type service struct {
 	Repository
 	timeout time.Duration
 }
 
-func NewService(repository Repository) *service {
+func ProviderService() Service {
+	return &service{}
+}
+
+func NewService(repository Repository) Service {
 	return &service{
 		repository,
 		time.Duration(2) * time.Second,
@@ -31,16 +38,11 @@ type CreateUserRes struct {
 	Email    string `json:"email" db:"email"`
 }
 
-type Service interface {
-	CreateUser(c context.Context, req *CreateUserReq) (*CreateUserRes, error)
-}
-
 func (s *service) CreateUser(c context.Context, req *CreateUserReq) (*CreateUserRes, error) {
 	ctx, cancel := context.WithTimeout(c, s.timeout)
 	defer cancel()
 
-	// TODO: hashpassword
-	hashPassword, err := util.HashPassword(req.Password)
+	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +50,7 @@ func (s *service) CreateUser(c context.Context, req *CreateUserReq) (*CreateUser
 	u := &User{
 		Username: req.Username,
 		Email:    req.Email,
-		Password: hashPassword,
+		Password: hashedPassword,
 	}
 
 	r, err := s.Repository.CreateUser(ctx, u)

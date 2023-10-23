@@ -12,9 +12,6 @@ type DBTX interface {
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
-type Repository interface {
-	CreateUser(ctx context.Context, user *User) (*User, error)
-}
 type repository struct {
 	db DBTX
 }
@@ -37,4 +34,16 @@ func (r *repository) CreateUser(ctx context.Context, user *User) (*User, error) 
 
 	user.ID = int64(lastInsertID)
 	return user, nil
+}
+
+func (r *repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	u := User{}
+
+	query := "SELECT id, email, username, password FROM users WHERE email=$1"
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
+	if err != nil {
+		return &User{}, nil
+	}
+
+	return &u, nil
 }

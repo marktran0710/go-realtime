@@ -9,6 +9,7 @@ type Repository interface {
 
 type Service interface {
 	CreateUser(c context.Context, req *CreateUserReq) (*CreateUserRes, error)
+	Login(ctx context.Context, req *LoginUserReq) (*LoginUserRes, error)
 }
 
 type User struct {

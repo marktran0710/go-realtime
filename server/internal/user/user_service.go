@@ -5,6 +5,12 @@ import (
 	"server/util"
 	"strconv"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+)
+
+const (
+	secretKey = "secret"
 )
 
 type service struct {
@@ -52,6 +58,12 @@ func (s *service) CreateUser(c context.Context, req *CreateUserReq) (*CreateUser
 	return res, c.Err()
 }
 
+type MyJWTClaims struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
 func (s *service) Login(ctx context.Context, req *LoginUserReq) (*LoginUserRes, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
@@ -65,5 +77,20 @@ func (s *service) Login(ctx context.Context, req *LoginUserReq) (*LoginUserRes, 
 	if err != nil {
 		return &LoginUserRes{}, err
 	}
-	return &u, nil
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyJWTClaims{
+		ID:       string(u.ID),
+		Username: u.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    string(u.ID),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
+	})
+
+	ss, err := token.SignedString([]byte(secretKey))
+	if err != nil {
+		return &LoginUserRes{}, nil
+	}
+
+	return &LoginUserRes{accessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID))}, nil
 }

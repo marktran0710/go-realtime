@@ -4,6 +4,8 @@ go 1.21.1
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/wire v0.5.0
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.14.0

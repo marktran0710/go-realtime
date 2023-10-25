@@ -79,10 +79,10 @@ func (s *service) Login(ctx context.Context, req *LoginUserReq) (*LoginUserRes, 
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyJWTClaims{
-		ID:       string(u.ID),
+		ID:       strconv.Itoa(int(u.ID)),
 		Username: u.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    string(u.ID),
+			Issuer:    strconv.Itoa(int(u.ID)),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	})

@@ -5,16 +5,12 @@
 package server
 
 import (
-	"database/sql"
 	"server/internal/user"
 
 	"github.com/google/wire"
 )
 
-func InitializeHandler(*sql.DB) (*user.Handler, error) {
-	wire.Build(user.ProviderRepository, user.NewRepository)
+func InitializeHandler(db user.DBTX) (*user.Handler, error) {
+	wire.Build(user.NewHandler, user.NewRepository, user.NewService)
 	return &user.Handler{}, nil
 }
-
-// var Set = wire.NewSet(
-// 	wire.Build(new(user.Repository), new(*Repository)))

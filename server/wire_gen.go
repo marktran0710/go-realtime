@@ -7,13 +7,14 @@
 package server
 
 import (
-	"database/sql"
 	"server/internal/user"
 )
 
 // Injectors from wire.go:
 
-func InitializeHandler(db *sql.DB) (*user.Handler, error) {
-	handler := user.ProviderHandler()
+func InitializeHandler(db user.DBTX) (*user.Handler, error) {
+	repository := user.NewRepository(db)
+	service := user.NewService(repository)
+	handler := user.NewHandler(service)
 	return handler, nil
 }
